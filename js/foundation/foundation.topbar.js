@@ -69,6 +69,31 @@
           this.events();
         }
 
+        // PJAX hack
+
+        var page_change = null;
+        var page_load   = null;
+        if (window.Turbolinks !== undefined) {
+          page_change = 'page:change';
+          page_load   = 'page:load';
+        } else if ($.fn.pjax !== undefined) {
+          page_change = 'pjax:start';
+          page_load   = 'pjax:end';
+        }
+
+        if (page_change !== null) {
+          $(window).on(page_change, function(e) {
+            self.off();
+            self.settings.init = false;
+          });
+
+          $(window).on(page_load, function(e) {
+            self.assemble();
+            self.settings.init = true;
+            self.events();
+          });
+        }
+
         return this.settings.init;
       } else {
         // fire method
@@ -271,9 +296,10 @@
           section.find('>.name').css({right: 100 * topbar.data('index') + '%'});
         }
 
-        if (topbar.data('index') === 0) {
+        if (topbar.data('index') <= 0) {
           topbar.css('height', '');
-        } else {
+          topbar.data('index', 0);
+        }  else {
           topbar.css('height', self.outerHeight($previousLevelUl, true) + self.settings.$topbar.data('height'));
         }
 
@@ -296,20 +322,21 @@
         var $link = $(this),
             $dropdown = $link.siblings('.dropdown'),
             url = $link.attr('href');
+        if ($dropdown.find('li.title.back.js-generated').size() == 0) {
+          if (self.settings.mobile_show_parent_link && url && url.length > 1) {
+            var $titleLi = $('<li class="title back js-generated"><h5><a href="#"></a></h5></li><li><a class="parent-link js-generated" href="' + url + '">' + $link.text() +'</a></li>');
+          } else {
+            var $titleLi = $('<li class="title back js-generated"><h5><a href="#"></a></h5></li>');
+          }
 
-        if (self.settings.mobile_show_parent_link && url && url.length > 1) {
-          var $titleLi = $('<li class="title back js-generated"><h5><a href="#"></a></h5></li><li><a class="parent-link js-generated" href="' + url + '">' + $link.text() +'</a></li>');
-        } else {
-          var $titleLi = $('<li class="title back js-generated"><h5><a href="#"></a></h5></li>');
+          // Copy link to subnav
+          if (self.settings.custom_back_text == true) {
+            $titleLi.find('h5>a').html('&laquo; ' + self.settings.back_text);
+          } else {
+            $titleLi.find('h5>a').html('&laquo; ' + $link.html());
+          }
+          $dropdown.prepend($titleLi);
         }
-
-        // Copy link to subnav
-        if (self.settings.custom_back_text == true) {
-          $titleLi.find('h5>a').html('&laquo; ' + self.settings.back_text);
-        } else {
-          $titleLi.find('h5>a').html('&laquo; ' + $link.html());
-        }
-        $dropdown.prepend($titleLi);
       });
 
       // Put element back in the DOM
