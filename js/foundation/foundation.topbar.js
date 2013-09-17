@@ -239,12 +239,16 @@
           $('.top-bar, [data-topbar]')
             .css('height', '')
             .removeClass('expanded')
+            .removeClass('narrow')
+            .addClass('wide')
             .find('li')
             .removeClass('hover');
 
             if(doToggle) {
               self.toggle();
             }
+        } else {
+          $('.top-bar, [data-topbar]').addClass('narrow').removeClass('wide');
         }
 
         if(stickyContainer.length > 0) {
