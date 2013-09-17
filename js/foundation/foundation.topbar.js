@@ -326,11 +326,15 @@
         var $link = $(this),
             $dropdown = $link.siblings('.dropdown'),
             url = $link.attr('href');
-        if ($dropdown.find('li.title.back.js-generated').size() == 0) {
+        
           if (self.settings.mobile_show_parent_link && url && url.length > 1) {
-            var $titleLi = $('<li class="title back js-generated"><h5><a href="#"></a></h5></li><li><a class="parent-link js-generated" href="' + url + '">' + $link.text() +'</a></li>');
-          } else {
-            var $titleLi = $('<li class="title back js-generated"><h5><a href="#"></a></h5></li>');
+            var $titleLi;
+            if ($dropdown.find('li.title.back.js-generated').size() == 0) {
+              $titleLi = $titleLi + $('<li class="title back js-generated"><h5><a href="#"></a></h5></li>');
+            }
+            if ($dropdown.find('li a.parent-link.js-generated').size() == 0) {
+              $titleLi = $titleLi + $('<li><a class="parent-link js-generated" href="' + url + '">' + $link.text() +'</a></li>');
+            } 
           }
 
           // Copy link to subnav
@@ -340,7 +344,7 @@
             $titleLi.find('h5>a').html('&laquo; ' + $link.html());
           }
           $dropdown.prepend($titleLi);
-        }
+        
       });
 
       // Put element back in the DOM
