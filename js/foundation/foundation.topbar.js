@@ -88,7 +88,7 @@
           });
 
           $(window).on(page_load, function(e) {
-            self.assemble();
+            // self.assemble();
             self.settings.init = true;
             self.events();
           });
@@ -290,26 +290,30 @@
             $movedLi = $this.closest('li.moved'),
             $previousLevelUl = $movedLi.parent();
 
-        topbar.data('index', topbar.data('index') - 1);
+        var index = topbar.data('index') - 1
 
-        if (!self.rtl) {
-          section.css({left: -(100 * topbar.data('index')) + '%'});
-          section.find('>.name').css({left: 100 * topbar.data('index') + '%'});
-        } else {
-          section.css({right: -(100 * topbar.data('index')) + '%'});
-          section.find('>.name').css({right: 100 * topbar.data('index') + '%'});
+        if (index >= 0) {
+          topbar.data('index', index);
+
+          if (!self.rtl) {
+            section.css({left: -(100 * index) + '%'});
+            section.find('>.name').css({left: 100 * index + '%'});
+          } else {
+            section.css({right: -(100 * index) + '%'});
+            section.find('>.name').css({right: 100 * index + '%'});
+          }
+
+          if (index == 0) {
+            topbar.css('height', '');
+            // topbar.data('index', 0);
+          }  else {
+            topbar.css('height', self.outerHeight($previousLevelUl, true) + self.settings.$topbar.data('height'));
+          }
+
+          setTimeout(function () {
+            $movedLi.removeClass('moved');
+          }, 300);
         }
-
-        if (topbar.data('index') <= 0) {
-          topbar.css('height', '');
-          topbar.data('index', 0);
-        }  else {
-          topbar.css('height', self.outerHeight($previousLevelUl, true) + self.settings.$topbar.data('height'));
-        }
-
-        setTimeout(function () {
-          $movedLi.removeClass('moved');
-        }, 300);
       });
     },
 
@@ -326,24 +330,18 @@
         var $link = $(this),
             $dropdown = $link.siblings('.dropdown'),
             url = $link.attr('href');
-        
-          if (self.settings.mobile_show_parent_link && url && url.length > 1) {
-            var $titleLi;
-            if ($dropdown.find('li.title.back.js-generated').size() == 0) {
-              $titleLi = $titleLi + $('<li class="title back js-generated"><h5><a href="#"></a></h5></li>');
-            }
-            if ($dropdown.find('li a.parent-link.js-generated').size() == 0) {
-              $titleLi = $titleLi + $('<li><a class="parent-link js-generated" href="' + url + '">' + $link.text() +'</a></li>');
-            } 
-          }
 
-          // Copy link to subnav
-          if (self.settings.custom_back_text == true) {
-            $titleLi.find('h5>a').html('&laquo; ' + self.settings.back_text);
-          } else {
-            $titleLi.find('h5>a').html('&laquo; ' + $link.html());
-          }
-          $dropdown.prepend($titleLi);
+            var title = '';        
+            if (self.settings.mobile_show_parent_link && url && url.length > 1) {
+              if ($dropdown.find('li a.parent-link.js-generated').size() == 0) {
+                title = title + '<li><a class="parent-link js-generated" href="' + url + '">' + $link.text() +'</a></li>'
+              }  
+            }
+            if ($dropdown.find('li.title.back.js-generated').size() == 0) {
+                title = title + '<li class="title back js-generated"><h5><a href="#">&laquo; ' + (self.settings.custom_back_text ? self.settings.back_text : $link.html()) + '</a></h5></li>'
+            }
+             
+          $dropdown.prepend(title);
         
       });
 
@@ -395,7 +393,10 @@
     },
 
     off : function () {
-      $(this.scope).off('.fndtn.topbar');
+       $(this.scope)
+         .off('click.fndtn')
+         .off('click.fndtn.topbar')
+         .off('.fndtn.topbar');
       $(window).off('.fndtn.topbar');
     },
 
