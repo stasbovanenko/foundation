@@ -83,6 +83,7 @@
 
         if (page_change !== null) {
           $(window).on(page_change, function(e) {
+            self.collapse();
             self.off();
             self.settings.init = false;
           });
@@ -99,6 +100,13 @@
         // fire method
         return this[method].call(this, options);
       }
+    },
+
+    collapse: function() {
+      var self = this;
+      var topbar = $('.top-bar, [data-topbar]');
+
+      topbar.data('index', 0).css('height', '').removeClass('expanded');
     },
 
     toggle: function() {
@@ -393,10 +401,7 @@
     },
 
     off : function () {
-       $(this.scope)
-         .off('click.fndtn')
-         .off('click.fndtn.topbar')
-         .off('.fndtn.topbar');
+      $(this.scope).off('click.fndtn').off('click.fndtn.topbar').off('.fndtn.topbar');
       $(window).off('.fndtn.topbar');
     },
 
